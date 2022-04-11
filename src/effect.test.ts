@@ -7,8 +7,10 @@ it('单个 `effect`', () => {
   effect(mock);
 
   expect(mock).toHaveBeenCalledTimes(1);
+  expect(mock).toHaveLastReturnedWith(1);
   target.a = 2;
   expect(mock).toHaveBeenCalledTimes(2);
+  expect(mock).toHaveLastReturnedWith(2);
 });
 
 it('值未改变时不应该响应', () => {
@@ -68,4 +70,14 @@ it('嵌套 `effect`', () => {
   // `target.a` 再次修改，导致 `target.b` 再次收集到 `mockNestEffectFn`, 因此会多执行一次
   expect(mockNestEffectFn).toHaveBeenCalledTimes(4);
   expect(mockEffectFn).toHaveBeenCalledTimes(2);
+});
+
+it('修改原始值', () => {
+  const origin = { a: 1 };
+  const target = reactive(origin);
+  const mock = vi.fn(() => target.a);
+  effect(mock);
+  origin.a = 2;
+  expect(mock).toHaveBeenCalledTimes(1);
+  expect(target.a).toBe(2);
 });
