@@ -1,5 +1,5 @@
 import { expect, it, vi } from 'vitest';
-import { effect, reactive } from './main';
+import { effect, reactive } from './';
 
 it('单个 `effect`', () => {
   const target = reactive({ a: 1 });

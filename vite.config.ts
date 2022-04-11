@@ -11,7 +11,7 @@ export default defineConfig({
   build: {
     target: 'ESNext',
     lib: {
-      entry: fileURLToPath(new URL('src/main.ts', import.meta.url)),
+      entry: fileURLToPath(new URL('src/index.ts', import.meta.url)),
       name: 'reactivity',
       fileName: format => `reactivity.${format}.js`,
     },

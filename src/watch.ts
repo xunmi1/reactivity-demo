@@ -27,8 +27,13 @@ class Watcher<T> {
     this.callback(this.#value, this.#oldValue);
     this.#oldValue = this.#value;
   }
+
+  stop() {
+    this.#effect.stop();
+  }
 }
 
 export const watch = <T>(getter: () => T, callback: WatchCallback<T>, options?: WatchOptions) => {
-  new Watcher(getter, callback, options);
+  const watcher = new Watcher(getter, callback, options);
+  return () => watcher.stop();
 };

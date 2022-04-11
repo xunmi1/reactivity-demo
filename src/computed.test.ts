@@ -1,6 +1,5 @@
 import { expect, it, vi } from 'vitest';
-import { computed } from './computed';
-import { reactive } from './reactive';
+import { computed, reactive } from './';
 
 it(`computed`, () => {
   const target = reactive({ a: 1 });

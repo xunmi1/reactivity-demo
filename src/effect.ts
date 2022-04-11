@@ -10,6 +10,8 @@ export interface ReactiveEffectOptions {
 }
 
 export class ReactiveEffect<T = unknown> {
+  #active = true;
+
   /** 关联的依赖集合 */
   deps: Dep[] = [];
 
@@ -20,7 +22,8 @@ export class ReactiveEffect<T = unknown> {
   }
 
   run() {
-    this.cleanup();
+    if (!this.#active) return this.fn();
+    this.#cleanup();
     try {
       activeEffect = this;
       effectStack.push(activeEffect);
@@ -31,9 +34,16 @@ export class ReactiveEffect<T = unknown> {
     }
   }
 
-  cleanup() {
+  #cleanup() {
     this.deps.forEach(dep => dep.delete(this));
     this.deps = [];
+  }
+
+  stop() {
+    if (this.#active) {
+      this.#cleanup();
+      this.#active = false;
+    }
   }
 }
 
