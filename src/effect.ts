@@ -3,21 +3,20 @@ const targetMap = new WeakMap<object, Map<string | symbol, Dep>>();
 let activeEffect: ReactiveEffect | undefined;
 const effectStack: ReactiveEffect[] = [];
 
-export type EffectScheduler<T> = (effect: ReactiveEffect) => T;
+export type EffectScheduler = (effect: ReactiveEffect) => void;
 
-export interface ReactiveEffectOptions<T> {
-  scheduler?: EffectScheduler<T>;
+export interface ReactiveEffectOptions {
+  scheduler?: EffectScheduler;
 }
 
 export class ReactiveEffect<T = unknown> {
   /** 关联的依赖集合 */
   deps: Dep[] = [];
 
-  constructor(public fn: () => T, public options?: ReactiveEffectOptions<T>) {}
+  constructor(public fn: () => T, public options?: ReactiveEffectOptions) {}
 
-  scheduler(): T {
-    const scheduler = this.options?.scheduler;
-    return scheduler ? scheduler(this) : this.run();
+  get scheduler() {
+    return this.options?.scheduler;
   }
 
   run() {
@@ -38,7 +37,7 @@ export class ReactiveEffect<T = unknown> {
   }
 }
 
-export const effect = <T = unknown>(fn: () => T, options?: ReactiveEffectOptions<T>) => {
+export const effect = <T = unknown>(fn: () => T, options?: ReactiveEffectOptions) => {
   const effectFn = new ReactiveEffect(fn, options);
   return effectFn.run();
 };
@@ -55,5 +54,7 @@ export const track = (target: object, key: string | symbol) => {
 
 export const trigger = (target: object, key: string | symbol) => {
   const dep = targetMap.get(target)?.get(key) ?? [];
-  [...dep].filter(effect => effect !== activeEffect).forEach(effect => effect.scheduler());
+  [...dep]
+    .filter(effect => effect !== activeEffect)
+    .forEach(effect => (effect.scheduler ? effect.scheduler(effect) : effect.run()));
 };

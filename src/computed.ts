@@ -13,7 +13,6 @@ class ComputedRef<T> implements Ref<T> {
           this.#dirty = true;
           triggerRef(this);
         }
-        return this.#value;
       },
     });
   }
