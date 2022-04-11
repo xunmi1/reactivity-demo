@@ -8,8 +8,11 @@ export const reactive = <T extends object>(data: T) => {
     },
 
     set(target, key, value) {
+      const oldValue = Reflect.get(target, key);
       const result = Reflect.set(target, key, value);
-      trigger(target, key);
+      if (!Object.is(value, oldValue)) {
+        trigger(target, key);
+      }
       return result;
     },
   });

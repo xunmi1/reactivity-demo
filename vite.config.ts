@@ -9,6 +9,7 @@ export default defineConfig({
     includeSource: ['src/**/*.{js,ts}'],
   },
   build: {
+    target: 'ESNext',
     lib: {
       entry: fileURLToPath(new URL('src/main.ts', import.meta.url)),
       name: 'reactivity',
