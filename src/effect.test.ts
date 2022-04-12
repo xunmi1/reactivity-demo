@@ -45,10 +45,12 @@ it('清理脏依赖', () => {
 }, 100);
 
 it('循环依赖', () => {
-  const target = reactive({ a: true });
-  const mock = vi.fn(() => (target.a = !target.a));
+  const target = reactive({ a: 1 });
+  const mock = vi.fn(() => (target.a += 1));
   effect(mock);
   expect(mock).toHaveBeenCalledTimes(1);
+  target.a = 3;
+  expect(mock).toHaveBeenCalledTimes(2);
 });
 
 it('嵌套 `effect`', () => {
@@ -72,7 +74,7 @@ it('嵌套 `effect`', () => {
   expect(mockEffectFn).toHaveBeenCalledTimes(2);
 });
 
-it('修改原始值', () => {
+it('修改原始值, 不应该被观测', () => {
   const origin = { a: 1 };
   const target = reactive(origin);
   const mock = vi.fn(() => target.a);
@@ -80,4 +82,32 @@ it('修改原始值', () => {
   origin.a = 2;
   expect(mock).toHaveBeenCalledTimes(1);
   expect(target.a).toBe(2);
+});
+
+it('观测依赖 `this` 的 `getter`', () => {
+  const target = reactive({
+    a: 1,
+    get b() {
+      return this.a;
+    },
+  });
+  const mock = vi.fn(() => target.b);
+  effect(mock);
+  expect(mock).toHaveLastReturnedWith(1);
+  target.a += 1;
+  expect(mock).toHaveLastReturnedWith(2);
+});
+
+it('观测依赖 `this` 的 `method`', () => {
+  const target = reactive({
+    a: 1,
+    b() {
+      return this.a;
+    },
+  });
+  const mock = vi.fn(() => target.b());
+  effect(mock);
+  expect(mock).toHaveLastReturnedWith(1);
+  target.a += 1;
+  expect(mock).toHaveLastReturnedWith(2);
 });

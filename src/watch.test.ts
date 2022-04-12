@@ -41,7 +41,7 @@ it('stop watch (immediate)', () => {
   expect(mock).toHaveBeenCalledTimes(1);
 });
 
-it('修改原始值', () => {
+it('修改原始值, 不应该被 `watch`', () => {
   const origin = { a: 1 };
   const target = reactive(origin);
   const mock = vi.fn((_: unknown, __: unknown) => {});
