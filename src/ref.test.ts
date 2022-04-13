@@ -1,11 +1,16 @@
 import { it, vi, expect } from 'vitest';
-import { ref, effect } from './';
+import { ref, isRef, effect } from './';
+import { isReactive } from './reactive';
 
 it('ref', () => {
-  const a = ref(1);
-  expect(a.value).toBe(1);
-  a.value = 2;
-  expect(a.value).toBe(2);
+  const origin = { foo: 1 };
+  const originRef = ref(origin);
+  expect(originRef.value).toStrictEqual(origin);
+  originRef.value.foo = 2;
+  expect(originRef.value).toStrictEqual(origin);
+  expect(isRef(origin)).toBe(false);
+  expect(isRef(originRef)).toBe(true);
+  expect(isReactive(originRef.value)).toBe(true);
 });
 
 it('should be reactive', () => {
@@ -18,6 +23,9 @@ it('should be reactive', () => {
   target.value = 2;
   expect(mock).toHaveBeenCalledTimes(2);
   expect(mock).toHaveLastReturnedWith(2);
+  target.value = 2;
+  expect(mock).toHaveBeenCalledTimes(2);
+  expect(mock).toHaveLastReturnedWith(2);
 });
 
 it('should make nested properties reactive', () => {
@@ -27,4 +35,10 @@ it('should make nested properties reactive', () => {
   expect(dummy).toBe(1);
   a.value.count = 2;
   expect(dummy).toBe(2);
+});
+
+it('should unwrap nested ref', () => {
+  expect(ref(ref(0)).value).toBe(0);
+  const origin = { foo: 1 };
+  expect(ref(ref(origin)).value).toStrictEqual(origin);
 });

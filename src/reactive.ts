@@ -3,8 +3,13 @@ import { hasChanged, isObject } from './shared';
 
 const REACTIVE_FLAG = Symbol('isReactive');
 
-export const reactive = <T extends object>(data: T) => {
-  return new Proxy(data, {
+const reactiveMap = new WeakMap();
+
+export const reactive = <T extends object>(value: T) => {
+  if (isReactive(value)) return value;
+  const existingProxy = reactiveMap.get(value);
+  if (existingProxy) return existingProxy;
+  const proxy = new Proxy(value, {
     get(target, key, receiver) {
       if (key === REACTIVE_FLAG) return true;
       track(target, key);
@@ -20,6 +25,9 @@ export const reactive = <T extends object>(data: T) => {
       return result;
     },
   });
+
+  reactiveMap.set(value, proxy);
+  return proxy;
 };
 
 export const toReactive = <T extends unknown>(value: T): T => (isObject(value) ? reactive(value) : value);
