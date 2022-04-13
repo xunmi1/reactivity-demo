@@ -1,4 +1,4 @@
-type Dep = Set<ReactiveEffect>;
+export type Dep = Set<ReactiveEffect>;
 const targetMap = new WeakMap<object, Map<string | symbol, Dep>>();
 let activeEffect: ReactiveEffect | undefined;
 const effectStack: ReactiveEffect[] = [];
